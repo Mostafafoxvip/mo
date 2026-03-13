@@ -1,0 +1,17 @@
+{
+    "name": "LuckyQuest",
+    "rootNamespace": "LuckyQuest",
+    "references": [
+        "Unity.TextMeshPro",
+        "DOTween.Modules"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
