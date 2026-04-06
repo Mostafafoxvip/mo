@@ -1,0 +1,146 @@
+<!DOCTYPE html><html><head><meta charset=UTF-8><meta name=viewport content="width=device-width,initial-scale=1"><title>Lucky Quest</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:linear-gradient(180deg,#ff7043,#87ceeb 40%,#1a237e);min-height:100vh;font-family:Arial Black,sans-serif;display:flex;flex-direction:column;align-items:center;user-select:none}
+h1{color:#ffd700;text-shadow:0 0 12px #ffd700;font-size:22px;margin:10px 0;letter-spacing:2px}
+.jp{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;width:98%;max-width:500px;margin-bottom:8px}
+.jp div{border-radius:8px;padding:4px;text-align:center;font-weight:900;font-size:11px}
+.jp .g{background:#700000;border:2px solid #ff4444;color:#ff4444}
+.jp .a{background:#5a3a00;border:2px solid #ffcc00;color:#ffcc00}
+.jp .i{background:#003060;border:2px solid #00aaff;color:#00aaff}
+.jp .n{background:#004020;border:2px solid #00dd66;color:#00dd66}
+.jp .v{font-size:15px;color:#fff}
+.machine{background:linear-gradient(180deg,#8b6914,#5a4008,#8b6914);border:4px solid #d4af37;border-radius:12px;padding:8px;width:98%;max-width:500px}
+.reels{display:grid;grid-template-columns:repeat(5,1fr);gap:3px;background:#0a0520;border-radius:6px;padding:6px}
+.cell{height:70px;border-radius:6px;background:#1a0a50;border:2px solid transparent;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:28px;transition:border-color .2s,box-shadow .2s}
+.cell.win{border-color:#ffd700;box-shadow:0 0 16px #ffd700aa;animation:pop .3s}
+@keyframes pop{0%{transform:scale(.8)}60%{transform:scale(1.1)}100%{transform:scale(1)}}
+.info{color:#fff;font-size:13px;margin:6px 0;text-align:center}
+.info span{color:#ffd700;font-weight:900}
+.btns{display:flex;gap:6px;margin:6px 0;flex-wrap:wrap;justify-content:center}
+button{border:none;border-radius:10px;padding:10px 16px;font-size:15px;font-weight:900;cursor:pointer;transition:transform .1s}
+button:hover{transform:scale(1.05)}
+.bspin{background:linear-gradient(180deg,#00e040,#007a20);color:#fff;min-width:120px;font-size:18px;box-shadow:0 4px 16px #00e04088}
+.bbet{background:linear-gradient(180deg,#4a2d8a,#2a1560);color:#fff;border:2px solid #7a4fcc}
+.bbuy{background:linear-gradient(180deg,#ffd700,#b8860b);color:#000}
+.msg{min-height:32px;color:#ffd700;font-size:16px;font-weight:900;text-align:center;padding:4px}
+.streak{color:#fff;font-size:13px;text-align:center;margin:2px 0}
+</style></head><body>
+<h1>🎰 LUCKY QUEST 🎰</h1>
+<div class=jp>
+  <div class="g"><div>GRAND</div><div class=v id=jg>5,093,630</div></div>
+  <div class="a"><div>MAJOR</div><div class=v id=jm>1,024,752</div></div>
+  <div class="i"><div>MINOR</div><div class=v id=ji>417,877</div></div>
+  <div class="n"><div>MINI</div><div class=v id=jn>201,313</div></div>
+</div>
+<div class=machine>
+  <div class=reels id=reels></div>
+</div>
+<div class=info>💰 <span id=bal>1,960,000</span> &nbsp; 🎯 Bet: <span id=bet>20,000</span> &nbsp; ⭐ Best: <span id=best>0</span></div>
+<div class=streak id=streak>🔥 STREAK ⚫⚫⚫⚫⚫ ×1</div>
+<div class=msg id=msg>اضغط SPIN للبدء 🎰</div>
+<div class=btns>
+  <button class=bbet onclick=chgBet(-1)>−</button>
+  <button class=bspin id=sbtn onclick=doSpin()>SPIN</button>
+  <button class=bbet onclick=chgBet(1)>+</button>
+  <button class=bbuy onclick=buy()>💰 BUY</button>
+</div>
+<script>
+const S=[
+  {e:'🤵',w:3,m:15},{e:'💎',w:6,m:8},{e:'⭐',w:5,m:0,wld:1},
+  {e:'💫',w:4,m:0,sct:1},{e:'📦',w:10,m:5},{e:'🎩',w:12,m:4},
+  {e:'🪙',w:22,m:2},{e:'🅰️',w:22,m:1.8},{e:'🎴',w:20,m:1.4},{e:'9️⃣',w:18,m:1}
+];
+const TW=S.reduce((a,s)=>a+s.w,0);
+const BETS=[1e3,2e3,5e3,1e4,2e4,5e4,1e5,2e5];
+let bal=1960000,bi=4,spins=0,bestW=0,streak=0,free=0,spinning=false;
+let jp={g:5093630,m:1024752,i:417877,n:201313};
+let grid=Array.from({length:5},()=>Array.from({length:3},pick));
+
+function pick(){let r=Math.random()*TW,c=0;for(const s of S){c+=s.w;if(r<c)return s;}return S[0]}
+function fmt(n){return Math.floor(n).toLocaleString()}
+
+function render(){
+  const r=document.getElementById('reels');
+  r.innerHTML='';
+  for(let row=0;row<3;row++)for(let col=0;col<5;col++){
+    const d=document.createElement('div');
+    d.className='cell';d.id=`c${col}${row}`;
+    d.textContent=grid[col][row].e;
+    r.appendChild(d);
+  }
+  document.getElementById('bal').textContent=fmt(bal);
+  document.getElementById('bet').textContent=fmt(BETS[bi]);
+  document.getElementById('best').textContent=fmt(bestW);
+  const m=[1,1,1.5,2,3,4][Math.min(streak,5)];
+  const dots='🟡'.repeat(streak)+'⚫'.repeat(5-Math.min(streak,5));
+  document.getElementById('streak').textContent=`🔥 STREAK ${dots} ×${m}`;
+}
+
+async function doSpin(){
+  if(spinning)return;
+  const isFree=free>0, b=BETS[bi];
+  if(!isFree&&bal<b){setMsg('❌ رصيد غير كافٍ! اشتري عملات');return;}
+  spinning=true;
+  document.getElementById('sbtn').textContent='⏳';
+  if(isFree)free--;else bal-=b;
+  spins++;
+
+  // animate
+  const frames=10;
+  for(let f=0;f<frames;f++){
+    for(let c=0;c<5;c++)for(let r=0;r<3;r++){
+      const el=document.getElementById(`c${c}${r}`);
+      if(el)el.textContent=pick().e;
+    }
+    await sleep(60+f*8);
+  }
+
+  // final result
+  const res=Array.from({length:5},()=>Array.from({length:3},pick));
+  grid=res;render();
+
+  // scatters
+  const sc=res.flat().filter(s=>s.sct).length;
+  if(sc>=3){free+=sc===3?10:sc===4?15:20;setMsg(`💫 SCATTER ×${sc} → ${free} FREE SPINS! 🎉`);spinning=false;document.getElementById('sbtn').textContent=`FREE(${free})`;return;}
+
+  // evaluate
+  const m=[1,1,1.5,2,3,4][Math.min(streak,5)];
+  let bestWin=0,hl=[];
+  for(let row=0;row<3;row++){
+    const line=res.map(c=>c[row]);
+    let base=null,cnt=0;
+    for(const s of line){if(s.wld){cnt++;continue}if(s.sct)continue;if(!base){base=s;cnt++;}else if(s.e===base.e)cnt++;else break;}
+    if(base&&cnt>=3){const w=Math.floor(b*base.m*cnt*m);if(w>bestWin){bestWin=w;hl=Array.from({length:cnt},(_,i)=>[i,row]);}}
+  }
+
+  if(bestWin>0){
+    bal+=bestWin;if(bestWin>bestW)bestW=bestWin;streak=Math.min(5,streak+1);
+    hl.forEach(([c,r])=>{const el=document.getElementById(`c${c}${r}`);if(el)el.classList.add('win');});
+    setTimeout(()=>document.querySelectorAll('.win').forEach(e=>e.classList.remove('win')),2000);
+    const lbl=bestWin>=b*40?'🎉 MEGA WIN!':bestWin>=b*15?'🔥 BIG WIN!':'✅ WIN!';
+    setMsg(`${lbl}  +${fmt(bestWin)}`);
+  }else{streak=0;setMsg(isFree?'😔 لا فوز (Free)':'😔 لا يوجد فوز');}
+
+  render();
+  spinning=false;
+  document.getElementById('sbtn').textContent=free>0?`FREE(${free})`:'SPIN';
+}
+
+function chgBet(d){bi=Math.max(0,Math.min(BETS.length-1,bi+d));render();}
+function buy(){bal+=500000;setMsg('💰 +500,000 عملة!');render();}
+function setMsg(m){document.getElementById('msg').textContent=m;}
+function sleep(ms){return new Promise(r=>setTimeout(r,ms));}
+
+// jackpot tick
+setInterval(()=>{
+  jp.g+=Math.floor(Math.random()*100+50);jp.m+=Math.floor(Math.random()*50+20);
+  jp.i+=Math.floor(Math.random()*20+5);jp.n+=Math.floor(Math.random()*8+2);
+  document.getElementById('jg').textContent=fmt(jp.g);
+  document.getElementById('jm').textContent=fmt(jp.m);
+  document.getElementById('ji').textContent=fmt(jp.i);
+  document.getElementById('jn').textContent=fmt(jp.n);
+},1000);
+
+render();
+</script></body></html>

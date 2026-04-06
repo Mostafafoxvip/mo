@@ -1,0 +1,69 @@
+<!DOCTYPE html><html><head><meta charset=UTF-8><meta name=viewport content="width=device-width,initial-scale=1,maximum-scale=1"><title>🎰Lucky Quest</title><style>*{margin:0;padding:0;box-sizing:border-box}body{background:linear-gradient(#ff7043,#1a237e);min-height:100vh;font:bold 14px Arial;color:#fff;display:flex;flex-direction:column;align-items:center;padding:8px;user-select:none}.t{color:#ffd700;font-size:20px;text-shadow:0 0 10px #ffd700;margin:6px}.jp{display:grid;grid-template-columns:repeat(4,1fr);gap:3px;width:100%;max-width:420px;margin-bottom:6px}.jp div{border-radius:6px;text-align:center;padding:3px;font-size:10px}.g{background:#700000;border:2px solid #f44;color:#f44}.a{background:#5a3a00;border:2px solid #fc0;color:#fc0}.i{background:#003060;border:2px solid #0af;color:#0af}.n{background:#004020;border:2px solid #0d6;color:#0d6}.jv{font-size:14px;color:#fff}.bx{background:linear-gradient(#8b6914,#5a4008);border:3px solid #d4af37;border-radius:10px;padding:6px;width:100%;max-width:420px}.gr{display:grid;grid-template-columns:repeat(5,1fr);gap:2px;background:#0a0520;border-radius:5px;padding:4px}.c{height:65px;border-radius:5px;background:#1a0a50;border:2px solid transparent;display:flex;align-items:center;justify-content:center;font-size:26px}.c.w{border-color:#ffd700;box-shadow:0 0 14px #ffd700aa;animation:p .3s}@keyframes p{0%{transform:scale(.8)}60%{transform:scale(1.1)}100%{transform:scale(1)}}.inf{font-size:12px;margin:5px 0;text-align:center}.inf b{color:#ffd700}.msg{min-height:28px;color:#ffd700;font-size:15px;text-align:center;padding:3px}.row{display:flex;gap:5px;margin:4px 0}.btn{border:none;border-radius:9px;padding:9px 14px;font-size:14px;font-weight:900;cursor:pointer}.sp{background:linear-gradient(#0e4,#072);color:#fff;min-width:110px;font-size:17px;box-shadow:0 3px 12px #0e488}.bt{background:linear-gradient(#4a2d8a,#2a1560);color:#fff;border:2px solid #7a4fcc}.by{background:linear-gradient(#ffd700,#b8860b);color:#000}</style></head><body>
+<div class=t>🎰 LUCKY QUEST 🎰</div>
+<div class=jp>
+<div class=g><div>GRAND</div><div class=jv id=jg>5,093,630</div></div>
+<div class=a><div>MAJOR</div><div class=jv id=jm>1,024,752</div></div>
+<div class=i><div>MINOR</div><div class=jv id=ji>417,877</div></div>
+<div class=n><div>MINI</div><div class=jv id=jn>201,313</div></div>
+</div>
+<div class=bx><div class=gr id=gr></div></div>
+<div class=inf>💰 <b id=bl>1,960,000</b> &nbsp; Bet:<b id=bt2>20,000</b> &nbsp; Best:<b id=bw>0</b></div>
+<div class=msg id=mg>اضغط SPIN 🎰</div>
+<div class=row>
+<button class="btn bt" onclick=cb(-1)>−</button>
+<button class="btn sp" id=sb onclick=sp()>SPIN</button>
+<button class="btn bt" onclick=cb(1)>+</button>
+<button class="btn by" onclick=buy()>💰</button>
+</div>
+<script>
+const S=[{e:'🤵',w:3,m:15},{e:'💎',w:6,m:8},{e:'⭐',w:5,wl:1},{e:'💫',w:4,sc:1},{e:'📦',w:10,m:5},{e:'🎩',w:12,m:4},{e:'🪙',w:22,m:2},{e:'🅰️',w:22,m:1.8},{e:'🎴',w:20,m:1.4},{e:'9️⃣',w:18,m:1}];
+const TW=S.reduce((a,s)=>a+s.w,0),B=[1e3,2e3,5e3,1e4,2e4,5e4,1e5,2e5];
+let bl=1960000,bi=4,bw=0,sk=0,fr=0,busy=0;
+let g=Array.from({length:5},()=>Array.from({length:3},pk));
+function pk(){let r=Math.random()*TW,c=0;for(const s of S){c+=s.w;if(r<c)return s;}return S[0]}
+function fm(n){return Math.floor(n).toLocaleString()}
+function re(){
+  const el=document.getElementById('gr');el.innerHTML='';
+  for(let r=0;r<3;r++)for(let c=0;c<5;c++){const d=document.createElement('div');d.className='c';d.id='c'+c+r;d.textContent=g[c][r].e;el.appendChild(d);}
+  document.getElementById('bl').textContent=fm(bl);
+  document.getElementById('bt2').textContent=fm(B[bi]);
+  document.getElementById('bw').textContent=fm(bw);
+}
+async function sp(){
+  if(busy)return;
+  const iF=fr>0,b=B[bi];
+  if(!iF&&bl<b){mg('❌ رصيد غير كافٍ');return;}
+  busy=1;document.getElementById('sb').textContent='⏳';
+  if(iF)fr--;else bl-=b;
+  for(let f=0;f<10;f++){
+    for(let c=0;c<5;c++)for(let r=0;r<3;r++){const e=document.getElementById('c'+c+r);if(e)e.textContent=pk().e;}
+    await sl(65+f*7);
+  }
+  const res=Array.from({length:5},()=>Array.from({length:3},pk));
+  g=res;re();
+  const sc=res.flat().filter(s=>s.sc).length;
+  if(sc>=3){fr+=sc===3?10:sc===4?15:20;mg('💫 SCATTER! '+fr+' FREE SPINS 🎉');busy=0;document.getElementById('sb').textContent=fr?'FREE':'SPIN';return;}
+  const mx=[1,1,1.5,2,3,4][Math.min(sk,5)];
+  let bw2=0,hl=[];
+  for(let r=0;r<3;r++){
+    const ln=res.map(c=>c[r]);let bs=null,ct=0;
+    for(const s of ln){if(s.wl){ct++;continue}if(s.sc)continue;if(!bs){bs=s;ct++;}else if(s.e===bs.e)ct++;else break;}
+    if(bs&&ct>=3){const w=Math.floor(b*bs.m*ct*mx);if(w>bw2){bw2=w;hl=Array.from({length:ct},(_,i)=>[i,r]);}}
+  }
+  if(bw2){bl+=bw2;if(bw2>bw)bw=bw2;sk=Math.min(5,sk+1);
+    hl.forEach(([c,r])=>{const e=document.getElementById('c'+c+r);if(e)e.classList.add('w');});
+    setTimeout(()=>document.querySelectorAll('.w').forEach(e=>e.classList.remove('w')),2000);
+    mg(bw2>=b*40?'🎉 MEGA WIN +'+fm(bw2):bw2>=b*15?'🔥 BIG WIN +'+fm(bw2):'✅ WIN +'+fm(bw2));
+  }else{sk=0;mg('😔 لا فوز');}
+  re();busy=0;document.getElementById('sb').textContent=fr?'FREE('+fr+')':'SPIN';
+}
+function cb(d){bi=Math.max(0,Math.min(B.length-1,bi+d));re();}
+function buy(){bl+=500000;mg('💰 +500,000!');re();}
+function mg(m){document.getElementById('mg').textContent=m;}
+function sl(ms){return new Promise(r=>setTimeout(r,ms));}
+setInterval(()=>{
+  const jp={jg:[5093630,100,50],jm:[1024752,50,20],ji:[417877,20,5],jn:[201313,8,2]};
+  for(const[id,[base,hi,lo]]of Object.entries(jp)){const el=document.getElementById(id);if(el){const n=parseInt(el.textContent.replace(/,/g,''))+(Math.random()*(hi-lo)+lo|0);el.textContent=fm(n);}}
+},1000);
+re();
+</script></body></html>
